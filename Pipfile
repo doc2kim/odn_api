@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 djangorestframework = "*"
 requests = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
