@@ -12,9 +12,6 @@ class LocationSerializer(serializers.ModelSerializer):
         model = Location
         fields = ['lat', 'lon']
         
-        
-    
-
 class DataSerializer(serializers.ModelSerializer):
     buoy = BuoySerializer(read_only=True)
     location = LocationSerializer(read_only=True)
