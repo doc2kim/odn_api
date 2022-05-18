@@ -20,7 +20,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6r4^nn51n*u*%k^mpw)wb-u%e0h$+&4ilp5!cn3w0i+j@34s9#'
+
+SECRET_KEY = os.environ.get("DJANGO_SECRET",'django-insecure-6r4^nn51n*u*%k^mpw)wb-u%e0h$+&4ilp5!cn3w0i+j@34s9#')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -80,12 +82,26 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME':  os.path.join(BASE_DIR, "db.sqlite3"),
+
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME':  os.path.join(BASE_DIR, "db.sqlite3"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": os.environ.get("RDS_HOST"),
+            "NAME": os.environ.get("RDS_NAME"),
+            "USER": os.environ.get("RDS_USER"),
+            "PASSWORD": os.environ.get("RDS_PASSWORD"),
+            "PORT": os.environ.get("RDS_PORT"),
+        }
+    
+    }
 
 
 # Password validation
