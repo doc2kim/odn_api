@@ -146,4 +146,4 @@ node_modules/
 !.elasticbeanstalk/*.global.yml
 
 
-.createsu
+.createsu.py
