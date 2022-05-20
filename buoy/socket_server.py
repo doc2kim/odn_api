@@ -80,7 +80,7 @@ def binder(client_socket, addr):
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind(('172.31.12.110', 6557))
+server_socket.bind(('172.31.13.108', 6557))
 server_socket.listen()
 
 print('socket server start')
