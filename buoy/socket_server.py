@@ -4,7 +4,7 @@ import socket, time, threading
 
 def binder(client_socket, addr):
     # sys.path.append('../')
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     import django
     django.setup()
     from buoy.models import Buoy, Location, Data 
