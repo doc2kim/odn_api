@@ -88,6 +88,7 @@ print('socket server start')
 try:
     while True:
         client_socket, addr = server_socket.accept()
+        print(client_socket)
         th= threading.Thread(target=binder, args=(client_socket, addr))
         th.start()
         
