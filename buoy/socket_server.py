@@ -17,7 +17,6 @@ def binder(client_socket, addr):
             length = int.from_bytes(initial_data, "big");
             receive_data = client_socket.recv(length)
             msg= (initial_data + receive_data).decode();
-            print(msg)
             if msg:
                 print('Received from', addr, msg);
                 if Buoy.objects.filter(buoy_id = int(msg[1:4])):
