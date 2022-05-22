@@ -3,11 +3,12 @@ import sys
 import socket, time, threading
 
 def binder(client_socket, addr):
-    # sys.path.append("../")
     sys.path.append("/var/app/venv/staging-LQM1lest/lib/python3.8/site-packages")
+    sys.path.append("../")
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     import django
     django.setup()
+    from buoy.models import Buoy, Location, Data 
     
     now = time
     try:
@@ -17,7 +18,6 @@ def binder(client_socket, addr):
             receive_data = client_socket.recv(length)
             msg= (initial_data + receive_data).decode();
             print(msg)
-            from buoy.models import Buoy, Location, Data 
             if msg:
                 print('Received from', addr, msg);
                 if Buoy.objects.filter(buoy_id = int(msg[1:4])):
