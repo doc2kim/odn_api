@@ -4,13 +4,17 @@ import socket, time, threading
 
 def binder(client_socket, addr):
     sys.path.append("/var/app/venv/staging-LQM1lest/lib/python3.8/site-packages")
-    sys.path.append("/var/app/current/buoy")
     sys.path.append("../")
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     import django
     django.setup()
+    from django.conf import settings
+    settings.DATABASES["default"]['HOST'] = "api-db.cchgmhpiqj3d.ap-northeast-2.rds.amazonaws.com"
+    settings.DATABASES["default"]["NAME"] = "odnapi"
+    settings.DATABASES["default"]["USER"] = "apidb"
+    settings.DATABASES["default"]["PASSWORD"] = "odn01323admin"
+    settings.DATABASES["default"]["PORT"] = "5432"
     from buoy.models import Buoy, Location, Data 
-    
     now = time
     try:
         while True:
