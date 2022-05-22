@@ -4,6 +4,7 @@ import socket, time, threading
 
 def binder(client_socket, addr):
     sys.path.append("/var/app/venv/staging-LQM1lest/lib/python3.8/site-packages")
+    sys.path.append("/var/app/current/buoy")
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     import django
     django.setup()
