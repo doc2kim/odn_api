@@ -19,8 +19,12 @@ def binder(client_socket, addr):
     try:
         while True:
             initial_data = client_socket.recv(4);
+            print("initial",initial_data)
             length = int.from_bytes(initial_data, "big");
+            print("length",length)
             receive_data = client_socket.recv(length)
+            print("receive_data",length)
+            print("msg",receive_data.decode())
             msg= (initial_data + receive_data).decode();
             if msg:
                 print('Received from', addr, msg);
@@ -108,5 +112,5 @@ except:
     print("socket server stop")
     
 finally:
-    server_socket.close();
+    server_socket.close()
     
