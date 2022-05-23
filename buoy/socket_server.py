@@ -80,7 +80,7 @@ def binder(client_socket, addr):
                 print("time : ", now.strftime('%H:%M:%S'))
                 msg = "echo : " +msg;
                 echo_msg = msg.encode();
-                print("echo_msg",echo_msg)
+                print("echo_msg_type",type(echo_msg))
                 length = len(echo_msg);
                 print("length",length)
                 client_socket.sendall(length.to_bytes(4, byteorder="big"));
