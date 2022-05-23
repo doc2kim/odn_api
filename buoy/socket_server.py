@@ -19,9 +19,7 @@ def binder(client_socket, addr):
     try:
         while True:
             receive_data = client_socket.recv(49);
-            print(receive_data)
             msg = receive_data.decode();
-            print(msg)
             if msg:
                 print('Received from', addr, msg);
                 if Buoy.objects.filter(buoy_id = int(msg[1:4])):
@@ -66,24 +64,24 @@ def binder(client_socket, addr):
                     time =  now.strftime('%H:%M:%S')
                 )
                 data.save()
-                print("id : ", int(msg[1:4]))
-                print("voltage : ", int(msg[4:7]))
-                print("lat : ", int(msg[7:13])/10000)
-                print("lon : ", int(msg[13:20])/10000)
-                print("temp : ",int(msg[20:24])/100 )
-                print("oxy : ", int(msg[24:28])/100)
-                print("ph : ", int(msg[28:32])/100)
-                print("orp : ", int(msg[32:36]))
-                print("c4e : ", int(msg[36:40]))
-                print("ppt : ", int(msg[40:44])/100)
-                print("crc : ", msg[44:48])
-                print("date : ", now.strftime('%Y-%m-%d'))
-                print("time : ", now.strftime('%H:%M:%S'))
+                # print("id : ", int(msg[1:4]))
+                # print("voltage : ", int(msg[4:7]))
+                # print("lat : ", int(msg[7:13])/10000)
+                # print("lon : ", int(msg[13:20])/10000)
+                # print("temp : ",int(msg[20:24])/100 )
+                # print("oxy : ", int(msg[24:28])/100)
+                # print("ph : ", int(msg[28:32])/100)
+                # print("orp : ", int(msg[32:36]))
+                # print("c4e : ", int(msg[36:40]))
+                # print("ppt : ", int(msg[40:44])/100)
+                # print("crc : ", msg[44:48])
+                # print("date : ", now.strftime('%Y-%m-%d'))
+                # print("time : ", now.strftime('%H:%M:%S'))
                 msg = "echo : " +msg;
                 echo_msg = msg.encode();
-                print(echo_msg)
-                length = len(echo_msg);
-                client_socket.sendall(length.to_bytes(4, byteorder="big"));
+                
+                # length = len(echo_msg);
+                # client_socket.sendall(length.to_bytes(4, byteorder="big"));
                 client_socket.sendall(echo_msg)
     # except:
     #     print("except : ", addr);
