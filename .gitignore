@@ -144,5 +144,4 @@ node_modules/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-
-db.sqlite3
+socket_server.py
