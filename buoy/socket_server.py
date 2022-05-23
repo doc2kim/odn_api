@@ -80,7 +80,7 @@ def binder(client_socket, addr):
                 msg = "echo : " +msg;
                 echo_msg = msg.encode();
                 length = len(echo_msg);
-                client_socket.sendall(length.to_bytes(56, byteorder="big"));
+                client_socket.sendall(length.to_bytes(4, byteorder="big"));
                 client_socket.sendall(echo_msg)
     # except:
     #     print("except : ", addr);
