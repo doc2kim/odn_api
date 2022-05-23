@@ -18,12 +18,13 @@ def binder(client_socket, addr):
     now = time
     try:
         while True:
-            initial_data = client_socket.recv(4);
+            initial_data = client_socket.recv(49);
             print("initial_len",len(initial_data))
             length = int.from_bytes(initial_data, "big");
             print("length",length)
             receive_data = client_socket.recv(length)
             print("receive_len", len(receive_data))
+            print("initial + receive",len(initial_data) + len(receive_data))
             print("receive_data",length)
             print("msg",receive_data.decode())
             msg= (initial_data + receive_data).decode();
