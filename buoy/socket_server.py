@@ -19,7 +19,9 @@ def binder(client_socket, addr):
     try:
         while True:
             receive_data = client_socket.recv(49);
+            print(receive_data)
             msg = receive_data.decode();
+            print(msg)
             if msg:
                 print('Received from', addr, msg);
                 if Buoy.objects.filter(buoy_id = int(msg[1:4])):
@@ -79,6 +81,7 @@ def binder(client_socket, addr):
                 print("time : ", now.strftime('%H:%M:%S'))
                 msg = "echo : " +msg;
                 echo_msg = msg.encode();
+                print(echo_msg)
                 length = len(echo_msg);
                 client_socket.sendall(length.to_bytes(4, byteorder="big"));
                 client_socket.sendall(echo_msg)
