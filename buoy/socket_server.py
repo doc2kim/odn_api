@@ -18,7 +18,7 @@ def binder(client_socket, addr):
     now = time
     try:
         while True:
-            initial_data = client_socket.recv(49);
+            initial_data = client_socket.recv(4);
             print("initial_len",len(initial_data))
             length = int.from_bytes(initial_data, "big");
             print("length",length)
