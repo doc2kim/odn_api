@@ -1,6 +1,8 @@
-import os
-import sys
+import os, sys, json
 import socket, time, threading
+
+
+
 
 def binder(client_socket, addr):
     sys.path.append("/var/app/venv/staging-LQM1lest/lib/python3.8/site-packages")
@@ -8,12 +10,27 @@ def binder(client_socket, addr):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     import django
     django.setup()
+    from django.core.exceptions import ImproperlyConfigured
     from django.conf import settings
-    settings.DATABASES["default"]['HOST'] = "api-db.cchgmhpiqj3d.ap-northeast-2.rds.amazonaws.com"
-    settings.DATABASES["default"]["NAME"] = "odnapi"
-    settings.DATABASES["default"]["USER"] = "apidb"
-    settings.DATABASES["default"]["PASSWORD"] = "odn01323admin"
-    settings.DATABASES["default"]["PORT"] = "5432"
+    
+    BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+    secrets_file = os.path.join(BASE_DIR,'secrets.json')
+
+    with open(secrets_file) as f:
+        secrets = json.loads(f.read())
+
+    def get_secret(setting, secrets=secrets):
+        try:
+            return secrets[setting]
+        except KeyError:
+            error_msg = "Set the {} environment variable".format(setting)
+            raise ImproperlyConfigured(error_msg)
+
+    settings.DATABASES["default"]['HOST'] = get_secret("RDS_HOST")
+    settings.DATABASES["default"]["NAME"] = get_secret("RDS_NAME")
+    settings.DATABASES["default"]["USER"] = get_secret("RDS_USER")
+    settings.DATABASES["default"]["PASSWORD"] = get_secret("RDS_PASSWORD")
+    settings.DATABASES["default"]["PORT"] = get_secret("RDS_PORT")
     from buoy.models import Buoy, Location, Data 
     now = time
     try:
