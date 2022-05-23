@@ -23,6 +23,7 @@ def binder(client_socket, addr):
             length = int.from_bytes(initial_data, "big");
             print("length",length)
             receive_data = client_socket.recv(length)
+            print("receive_len", len(receive_data))
             print("receive_data",length)
             print("msg",receive_data.decode())
             msg= (initial_data + receive_data).decode();
