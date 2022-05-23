@@ -12,9 +12,8 @@ def binder(client_socket, addr):
     django.setup()
     from django.core.exceptions import ImproperlyConfigured
     from django.conf import settings
-    
-    BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-    secrets_file = os.path.join(BASE_DIR,'secrets.json')
+
+    secrets_file = os.path.join("var/app/current",'secrets.json')
 
     with open(secrets_file) as f:
         secrets = json.loads(f.read())
