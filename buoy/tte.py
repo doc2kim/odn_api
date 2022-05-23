@@ -1,7 +1,7 @@
-from dotenv import load_dotenv
-import os 
+import environ
 
+env = environ.Env()
 
-load_dotenv()
+environ.Env.read_env()
 
-print(os.environ.get('RDS_HOST'))
+print(env('RDS_HOST'))
