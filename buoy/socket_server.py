@@ -25,12 +25,12 @@ def binder(client_socket, addr):
             if msg:
                 print('Received from', addr, msg);
                 if Buoy.objects.filter(buoy_id = int(msg[1:4])):
-                    buoy = Buoy.objects.filter(buoy_id = int(msg[1:4])).update(voltage = int(msg[4:7]))
-                    if Location.objects.filter(buoy__buoy_id = buoy.buoy_id):
-                        location = Location.objects.get(buoy__buoy_id = buoy.buoy_id)
-                        location.update(lat = int(msg[7:13])/10000)
-                        location.update(lon = int(msg[13:20])/10000)
+                    Buoy.objects.filter(buoy_id = int(msg[1:4])).update(voltage = int(msg[4:7]))
+                    
+                    if Location.objects.filter(buoy__buoy_id = int(msg[1:4])):
+                        Location.objects.filter(buoy__buoy_id = int(msg[1:4])).update(lat = int(msg[7:13])/10000).update(lon = int(msg[13:20])/10000)
                     else:
+                        buoy = Buoy.objects.get(buoy_id = int(msg[1:4]))
                         location = Location.objects.create(
                             buoy = buoy,
                             lat = int(msg[7:13])/10000,
@@ -51,7 +51,7 @@ def binder(client_socket, addr):
                     location.save()
                 data = Data.objects.create(
                     buoy = Buoy.objects.get(buoy_id = int(msg[1:4])),
-                    location = location,
+                    location = Location.objects.get(buoy__buoy_id = int(msg[1:4])),
                     temp = int(msg[20:24])/100,
                     oxy = int(msg[24:28])/100,
                     ph = int(msg[28:32])/100,
