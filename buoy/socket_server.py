@@ -18,16 +18,9 @@ def binder(client_socket, addr):
     now = time
     try:
         while True:
-            initial_data = client_socket.recv(4);
-            print("initial_len",len(initial_data))
-            length = int.from_bytes(initial_data, "big");
-            print("length",length)
-            receive_data = client_socket.recv(length)
-            print("receive_len", len(receive_data))
-            print("initial + receive",len(initial_data) + len(receive_data))
-            print("receive_data",length)
-            print("msg",receive_data.decode())
-            msg= (initial_data + receive_data).decode();
+            receive_data = client_socket.recv(49);
+            print(receive_data)
+            msg = receive_data.decode();
             if msg:
                 print('Received from', addr, msg);
                 if Buoy.objects.filter(buoy_id = int(msg[1:4])):
@@ -87,7 +80,9 @@ def binder(client_socket, addr):
                 print("time : ", now.strftime('%H:%M:%S'))
                 msg = "echo : " +msg;
                 echo_msg = msg.encode();
+                print("echo_msg",echo_msg)
                 length = len(echo_msg);
+                print("length",length)
                 client_socket.sendall(length.to_bytes(4, byteorder="big"));
                 client_socket.sendall(echo_msg)
     # except:
