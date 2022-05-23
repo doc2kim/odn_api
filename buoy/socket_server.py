@@ -19,7 +19,7 @@ def binder(client_socket, addr):
     try:
         while True:
             initial_data = client_socket.recv(4);
-            print("initial",initial_data)
+            print("initial_len",len(initial_data))
             length = int.from_bytes(initial_data, "big");
             print("length",length)
             receive_data = client_socket.recv(length)
