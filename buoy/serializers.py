@@ -17,7 +17,7 @@ class DataSerializer(serializers.ModelSerializer):
     location = LocationSerializer(read_only=True)
     class Meta:
         model = Data
-        fields = '__all__'
+        fields = ['buoy', 'location','temp','oxy','ph','ppt','orp','o4e','crc','date','time']
 
 
 
