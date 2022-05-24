@@ -2,12 +2,11 @@ import os, sys, json
 import socket, time, threading
 
 
-
-
 def binder(client_socket, addr):
     sys.path.append("/var/app/venv/staging-LQM1lest/lib/python3.8/site-packages")
     sys.path.append("../")
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    
     import django
     django.setup()
     from django.core.exceptions import ImproperlyConfigured
@@ -30,11 +29,12 @@ def binder(client_socket, addr):
     settings.DATABASES["default"]["USER"] = get_secret("RDS_USER")
     settings.DATABASES["default"]["PASSWORD"] = get_secret("RDS_PASSWORD")
     settings.DATABASES["default"]["PORT"] = get_secret("RDS_PORT")
+    
     from buoy.models import Buoy, Location, Data 
     now = time
     try:
         while True:
-            receive_data = client_socket.recv(49);
+            receive_data = client_socket.recv(1024);
             msg = receive_data.decode();
             if msg:
                 print('Received from', addr, msg);
@@ -99,8 +99,8 @@ def binder(client_socket, addr):
                 # length = len(echo_msg);
                 # client_socket.sendall(length.to_bytes(4, byteorder="big"));
                 client_socket.sendall(echo_msg)
-    # except:
-    #     print("except : ", addr);
+    except socket.error as ex:
+        print (ex)
         
     finally:
         client_socket.close();
@@ -118,8 +118,9 @@ try:
         th= threading.Thread(target=binder, args=(client_socket, addr))
         th.start()
         
-except:
-    print("socket server stop")
+except socket.error as ex:
+    print (ex)
+ 
     
 finally:
     server_socket.close()

@@ -146,3 +146,4 @@ node_modules/
 !.elasticbeanstalk/*.global.yml
 
 db.sqlite3
+secrets.json
