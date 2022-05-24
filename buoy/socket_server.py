@@ -24,7 +24,6 @@ def binder(client_socket, addr):
             error_msg = "Set the {} environment variable".format(setting)
             raise ImproperlyConfigured(error_msg)
 
-
     settings.DATABASES["default"]['HOST'] = get_secret("RDS_HOST")
     settings.DATABASES["default"]["NAME"] = get_secret("RDS_NAME")
     settings.DATABASES["default"]["USER"] = get_secret("RDS_USER")
@@ -33,12 +32,13 @@ def binder(client_socket, addr):
     
     from buoy.models import Buoy, Location, Data 
     now = time
+    
     try:
         while True:
             receive_data = client_socket.recv(50);
             if not receive_data:
-                print (addr," to quit!")
-                print ("Wait for next data.")
+                print (addr,"to quit!")
+                print ("Waiting for next data...")
                 break
             msg = receive_data.decode();
             if msg:
@@ -117,11 +117,11 @@ server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('172.31.4.225', 6557))
 server_socket.listen()
 
-print('Server start up.')
+print('Server start up!')
 
 try:
     while True:
-        print('Waiting for Data.')
+        print('Receiving data...')
         client_socket, addr = server_socket.accept()
         th= threading.Thread(target=binder, args=(client_socket, addr))
         th.start()
