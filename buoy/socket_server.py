@@ -36,7 +36,7 @@ def binder(client_socket, addr):
         while True:
             receive_data = client_socket.recv(1024);
             if not receive_data:
-                print ('Receive_data is None' + addr)
+                print ('receive_data is None', addr)
             msg = receive_data.decode();
             if msg:
                 print('Received from', addr, msg);
