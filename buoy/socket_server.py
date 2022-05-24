@@ -35,6 +35,8 @@ def binder(client_socket, addr):
     try:
         while True:
             receive_data = client_socket.recv(1024);
+            if not receive_data:
+                print ('Receive_data is None' + addr[1],':',addr[1])
             msg = receive_data.decode();
             if msg:
                 print('Received from', addr, msg);
@@ -99,21 +101,24 @@ def binder(client_socket, addr):
                 # length = len(echo_msg);
                 # client_socket.sendall(length.to_bytes(4, byteorder="big"));
                 client_socket.sendall(echo_msg)
-    except socket.error as ex:
-        print (ex)
+    except ConnectionResetError as e:
+        print ( e + addr[0],':',addr[1])
         
     finally:
         client_socket.close();
+
+
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('172.31.4.225', 6557))
 server_socket.listen()
 
-print('socket server start')
+print('server start')
 
 try:
     while True:
+        print('wait')
         client_socket, addr = server_socket.accept()
         th= threading.Thread(target=binder, args=(client_socket, addr))
         th.start()
