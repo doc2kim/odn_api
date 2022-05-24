@@ -34,9 +34,9 @@ def binder(client_socket, addr):
     now = time
     try:
         while True:
-            receive_data = client_socket.recv(1024);
+            receive_data = client_socket.recv(50);
             if not receive_data:
-                print ('receive_data is None', addr)
+                print (addr,"to quit", "Wait for next data")
                 break
             msg = receive_data.decode();
             if msg:
@@ -103,7 +103,7 @@ def binder(client_socket, addr):
                 # client_socket.sendall(length.to_bytes(4, byteorder="big"));
                 client_socket.sendall(echo_msg)
     except ConnectionResetError as e:
-        print ( e + addr[0],':',addr[1])
+        print ( e , addr)
         
     finally:
         client_socket.close();
@@ -124,8 +124,8 @@ try:
         th= threading.Thread(target=binder, args=(client_socket, addr))
         th.start()
         
-except socket.error as ex:
-    print (ex)
+except socket.error as e:
+    print (e)
  
     
 finally:
