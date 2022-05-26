@@ -30,6 +30,9 @@ class Data(models.Model):
     date = models.DateField()
     time = models.TimeField()
     
+    class Meta:
+        ordering = ('-date','-time')
+    
     def __str__(self):
             return '{}'.format(self.location)
     
