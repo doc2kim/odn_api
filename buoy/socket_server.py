@@ -44,7 +44,7 @@ def binder(client_socket, addr):
             if msg:
                 print('Received from', addr, msg);
                 if Buoy.objects.filter(buoy_id = int(msg[1:4])):
-                    Buoy.objects.filter(buoy_id = int(msg[1:4])).update(voltage = int(msg[4:7]))
+                    Buoy.objects.filter(buoy_id = int(msg[1:4])).update(voltage = int(msg[4:7])/10)
                     if Location.objects.filter(buoy__buoy_id = int(msg[1:4])):
                         location = Location.objects.filter(buoy__buoy_id = int(msg[1:4]))
                         location.update(
@@ -62,7 +62,7 @@ def binder(client_socket, addr):
                 else:
                     buoy = Buoy.objects.create(
                         buoy_id = int(msg[1:4]),
-                        voltage = int(msg[4:7])/100
+                        voltage = int(msg[4:7])/10
                     )
                     location = Location.objects.create(
                         buoy = buoy,
