@@ -25,7 +25,7 @@ class Data(models.Model):
     ph = models.FloatField()
     ppt = models.FloatField()
     orp = models.IntegerField()
-    o4e = models.IntegerField()
+    c4e = models.IntegerField()
     crc = models.CharField(max_length = 100)
     date = models.DateField()
     time = models.TimeField()

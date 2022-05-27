@@ -62,7 +62,7 @@ def binder(client_socket, addr):
                 else:
                     buoy = Buoy.objects.create(
                         buoy_id = int(msg[1:4]),
-                        voltage = int(msg[4:7])/10
+                        voltage = int(msg[4:7])/100
                     )
                     location = Location.objects.create(
                         buoy = buoy,
@@ -78,7 +78,7 @@ def binder(client_socket, addr):
                     oxy = int(msg[24:28])/100,
                     ph = int(msg[28:32])/100,
                     orp = int(msg[32:36]),
-                    o4e = int(msg[36:40]),
+                    c4e = int(msg[36:40]),
                     ppt = int(msg[40:44])/100,
                     crc = str(msg[44:48]),
                     date = now.strftime('%Y-%m-%d'),

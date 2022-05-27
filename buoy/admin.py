@@ -76,7 +76,7 @@ class DataAdmin(admin.ModelAdmin):
                 "ph",
                 "ppt",
                 "orp",
-                "o4e",
+                "c4e",
             ),
         }),
         ("etc", {
