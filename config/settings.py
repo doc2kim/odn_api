@@ -20,13 +20,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET",'django-insecure-6r4^nn51n*u*%k^mpw)wb-u%e0h$+&4ilp5!cn3w0i+j@34s9#')
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET", 'django-insecure-6r4^nn51n*u*%k^mpw)wb-u%e0h$+&4ilp5!cn3w0i+j@34s9#')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.api.odn-it.com',
+                 '.odn-it.com',
+                 '127.0.0.1',
+                 'localhost',
+                 '.elasticbeanstalk.com',
+                 ]
 
 
 # Application definition
@@ -40,6 +46,7 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
+    'corsheaders'
 ]
 
 PROJECT_APPS = [
@@ -56,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -75,9 +83,6 @@ TEMPLATES = [
         },
     },
 ]
-
-
-
 
 
 # Database
@@ -101,7 +106,7 @@ else:
             "PASSWORD": os.environ.get("RDS_PASSWORD"),
             "PORT": os.environ.get("RDS_PORT"),
         }
-    
+
     }
 
 
@@ -123,6 +128,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:8000', 'http://localhost:3000']
+CORS_ALLOW_CREDENTIALS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -155,4 +162,3 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
-
