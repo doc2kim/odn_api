@@ -51,25 +51,25 @@ from .models import Data, DataFilter
             OpenApiParameter(
                 name='date_after',
                 type=str,
-                description="범위검색 시작날짜 'yyyy-mm-dd' 입력",
+                description="범위검색 시작날짜 'yyyy-mm-dd'",
                 required=False
             ),
             OpenApiParameter(
                 name='date_before',
                 type=str,
-                description="범위검색 종료날짜 'yyyy-mm-dd' 입력",
+                description="범위검색 종료날짜 'yyyy-mm-dd'",
                 required=False
             ),
             OpenApiParameter(
                 name='time_after',
                 type=str,
-                description="범위검색 시작시간 'hh:mm:ss' 입력",
+                description="범위검색 시작시간 'hh:mm:ss'",
                 required=False
             ),
             OpenApiParameter(
                 name='time_before',
                 type=str,
-                description="범위검색 종료시간 'hh:mm:ss' 입력",
+                description="범위검색 종료시간 'hh:mm:ss'",
                 required=False
             ),
             OpenApiParameter(

@@ -167,11 +167,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'ODN REST API Document',
-    'DESCRIPTION':
-        """ 
-        안녕하세요 이곳은 ODN REST API 문서 페이지 입니다 :)<br/><br/>
-        <a href="http://api.odn-it.com/buoy/">스마트부표 REST API 바로가기 😚</a>
-        """,
+    'DESCRIPTION': " 안녕하세요 이곳은 ODN REST API 문서 페이지 입니다 :)<br/><br/><a href='http://api.odn-it.com/buoy/'>스마트부표 REST API 바로가기 😚</a>",
     'CONTACT': {'name': 'doc2kim', 'email': 'doc2kim@naver.com'},
     'SWAGGER_UI_SETTINGS': {
         'dom_id': '#swagger-ui',  # required(default)
