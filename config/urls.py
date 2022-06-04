@@ -14,10 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import TemplateView
+from django.urls import include, path
+from drf_spectacular.views import SpectacularSwaggerView
+from drf_spectacular.views import SpectacularJSONAPIView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('buoy.urls'),)
+    path('', include('buoy.urls'),),
+    path("docs/json/", SpectacularJSONAPIView.as_view(), name="schema-json"),
+    path("", SpectacularSwaggerView.as_view(url_name="schema-json"),
+         name="swagger-ui",)
 ]

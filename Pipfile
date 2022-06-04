@@ -10,6 +10,7 @@ psycopg2-binary = "*"
 django = "*"
 django-filter = "*"
 django-cors-headers = "*"
+drf-spectacular = "*"
 
 [dev-packages]
 autopep8 = "*"

@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.BuoyDataView.as_view(), name="buoy"),
+    path('buoy/', views.BuoyDataView.as_view({'get': 'list'}), name="buoy"),
 ]
