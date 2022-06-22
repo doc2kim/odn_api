@@ -15,7 +15,7 @@ class Buoy(models.Model):
 
 class Coordinate(models.Model):
     buoy_id = models.ForeignKey(
-        Buoy, related_name='coordinate', on_delete=models.PROTECT, default=0, db_column="buoy_id")
+        Buoy, related_name="coordinate", on_delete=models.PROTECT, db_column="buoy_id")
     lat = models.FloatField()
     lon = models.FloatField()
 
@@ -25,7 +25,7 @@ class Coordinate(models.Model):
 
 class MeasureTime(models.Model):
     coordinate = models.ForeignKey(
-        Coordinate, related_name='measure_time', on_delete=models.PROTECT, default='0', db_column="coordinate_id")
+        Coordinate, related_name="measure_time", on_delete=models.PROTECT, default='0', db_column="coordinate_id")
     date = models.DateField()
     time = models.TimeField()
 
@@ -35,7 +35,7 @@ class MeasureTime(models.Model):
 
 class Measure(models.Model):
     measure_time = models.ForeignKey(
-        MeasureTime, related_name='measure', on_delete=models.PROTECT, default='0', db_column="measure_time_id")
+        MeasureTime, related_name="measure", on_delete=models.PROTECT, default='0', db_column="measure_time_id")
     temp = models.FloatField()
     oxy = models.FloatField()
     ph = models.FloatField()
