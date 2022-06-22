@@ -15,7 +15,7 @@ class Buoy(models.Model):
 
 class Coordinate(models.Model):
     buoy_id = models.ForeignKey(
-        Buoy, related_name='coordinate', on_delete=models.PROTECT, db_column="buoy_id")
+        Buoy, related_name='coordinate', on_delete=models.PROTECT, default=0, db_column="buoy_id")
     lat = models.FloatField()
     lon = models.FloatField()
 
