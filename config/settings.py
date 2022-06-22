@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['.api.odn-it.com',
                  '127.0.0.1',
                  'localhost',
                  '.elasticbeanstalk.com',
-                 "*",
                  ]
 
 
