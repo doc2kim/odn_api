@@ -1,4 +1,4 @@
-from re import A
+
 from django.contrib import admin
 from .models import Buoy, Coordinate, MeasureTime, Measure
 # Register your models here.
@@ -13,7 +13,6 @@ class BuoyAdmin(admin.ModelAdmin):
             "fields": (
                 "id",
                 "voltage",
-
             )
         }),
     )
