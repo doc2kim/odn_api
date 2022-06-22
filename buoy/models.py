@@ -5,7 +5,8 @@ from django_filters import DateFromToRangeFilter, FilterSet,  TimeRangeFilter, A
 
 
 class Buoy(models.Model):
-    id = models.IntegerField(help_text="Buoy ID", primary_key=True)
+    id = models.IntegerField(
+        help_text="Buoy ID", default='0', primary_key=True)
     voltage = models.FloatField(null=True)
 
     def __str__(self):
@@ -14,7 +15,7 @@ class Buoy(models.Model):
 
 class Coordinate(models.Model):
     buoy_id = models.ForeignKey(
-        Buoy, related_name='coordinate', on_delete=models.PROTECT, db_column="buoy_id")
+        Buoy, related_name='coordinate', on_delete=models.PROTECT, default='0', db_column="buoy_id")
     lat = models.FloatField()
     lon = models.FloatField()
 
