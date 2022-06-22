@@ -6,7 +6,7 @@ from django_filters import DateFromToRangeFilter, FilterSet,  TimeRangeFilter, A
 
 class Buoy(models.Model):
     id = models.IntegerField(
-        help_text="Buoy ID", default=100 primary_key=True)
+        help_text="Buoy ID", default=100, primary_key=True)
     voltage = models.FloatField(null=True)
 
     def __str__(self):
