@@ -1,76 +1,93 @@
+from re import A
 from django.contrib import admin
-from .models import Buoy, Location, Data
+from .models import Buoy, Coordinate, MeasureTime, Measure
 # Register your models here.
 
 
 @admin.register(Buoy)
 class BuoyAdmin(admin.ModelAdmin):
-    """Opendata Admin Definition"""
+    """Buoy Admin Definition"""
+
+    fieldsets = (
+        ("Info", {
+            "fields": (
+                "id",
+                "voltage",
+
+            )
+        }),
+    )
+
+    list_display = (
+        "id",
+        "voltage",
+    )
+
+    list_filter = (
+        "id",
+        "voltage",
+    )
+
+
+@admin.register(Coordinate)
+class CoordinateAdmin(admin.ModelAdmin):
+    """Measures Admin Definition"""
 
     fieldsets = (
         ("Info", {
             "fields": (
                 "buoy_id",
-                "voltage"
-            )
-        }),
-    )
-
-    list_display = (
-        "buoy_id",
-        "voltage"
-    )
-
-    list_filter = (
-        "buoy_id",
-        "voltage"
-    )
-    
-@admin.register(Location)
-class LocationAdmin(admin.ModelAdmin):
-    """Opendata Admin Definition"""
-
-    fieldsets = (
-        ("Info", {
-            "fields": (
-                "buoy",
                 "lat",
-                "lon"
+                "lon",
+
             )
         }),
     )
 
     list_display = (
-        "buoy",
         "lat",
         "lon"
     )
 
     list_filter = (
-        "buoy",
         "lat",
         "lon"
     )
-    
-@admin.register(Data)
-class DataAdmin(admin.ModelAdmin):
-    """Opendata Admin Definition"""
+
+
+@admin.register(MeasureTime)
+class MeasuresTimeAdmin(admin.ModelAdmin):
+    """MeasuresTime Admin Definition"""
 
     fieldsets = (
         ("Info", {
             "fields": (
-                "buoy",
-                "location",
-            ),
-        }),
-        ("Time", {
-            "fields": (
+                "coordinate",
                 "date",
-                "time"
+                "time",
             ),
         }),
+    )
+
+    list_display = (
+        "date",
+        "time",
+    )
+
+    list_filter = (
+        "date",
+        "time",
+    )
+
+
+@admin.register(Measure)
+class MeasureAdmin(admin.ModelAdmin):
+    """Measure Admin Definition"""
+
+    fieldsets = (
         ("Data", {
             "fields": (
+                "measure_time",
                 "temp",
                 "oxy",
                 "ph",
@@ -87,29 +104,21 @@ class DataAdmin(admin.ModelAdmin):
     )
 
     list_display = (
-        "buoy",
-        "location",
-        "date",
-        "time",
         "temp",
         "oxy",
         "ph",
         "ppt",
         "orp",
-        "c4e"
+        "c4e",
+        "crc",
     )
-    
-
 
     list_filter = (
-        "buoy",
-        "location",
-        "date",
-        "time",
         "temp",
         "oxy",
         "ph",
         "ppt",
         "orp",
-        "c4e"
+        "c4e",
+        "crc",
     )

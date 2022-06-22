@@ -5,16 +5,16 @@ from django_filters import DateFromToRangeFilter, FilterSet,  TimeRangeFilter, A
 
 
 class Buoy(models.Model):
-    buoy_id = models.IntegerField(primary_key=True)
+    id = models.IntegerField(help_text="Buoy ID", primary_key=True)
     voltage = models.FloatField(null=True)
 
     def __str__(self):
-        return '{}'.format(self.buoy_id)
+        return '{}'.format(self.id)
 
 
-class Location(models.Model):
-    buoy = models.ForeignKey(
-        Buoy, related_name='location_buoy', on_delete=models.PROTECT)
+class Coordinate(models.Model):
+    buoy_id = models.ForeignKey(
+        Buoy, related_name='coordinate', on_delete=models.PROTECT, db_column="buoy_id")
     lat = models.FloatField()
     lon = models.FloatField()
 
@@ -22,11 +22,19 @@ class Location(models.Model):
         return '{}, {}'.format(self.lat, self.lon)
 
 
-class Data(models.Model):
-    buoy = models.ForeignKey(
-        Buoy, related_name='data_buoy', on_delete=models.PROTECT)
-    location = models.ForeignKey(
-        Location, related_name='data_location', on_delete=models.PROTECT)
+class MeasureTime(models.Model):
+    coordinate = models.ForeignKey(
+        Coordinate, related_name='measure_time', on_delete=models.PROTECT, db_column="coordinate_id")
+    date = models.DateField()
+    time = models.TimeField()
+
+    def __str__(self):
+        return '{}, {}'.format(self.date, self.time)
+
+
+class Measure(models.Model):
+    measure_time = models.ForeignKey(
+        MeasureTime, related_name='measure', on_delete=models.PROTECT, db_column="measure_time_id")
     temp = models.FloatField()
     oxy = models.FloatField()
     ph = models.FloatField()
@@ -34,23 +42,18 @@ class Data(models.Model):
     orp = models.IntegerField()
     c4e = models.IntegerField()
     crc = models.CharField(max_length=100)
-    date = models.DateField()
-    time = models.TimeField()
-
-    class Meta:
-        ordering = ('-date', '-time')
 
     def __str__(self):
-        return '{}'.format(self.location)
+        return '{}'.format(self.crc)
 
 
 class DataFilter(FilterSet):
-    buoy = AllValuesFilter(field_name="buoy__buoy_id")
-    lat = AllValuesFilter(field_name="location__lat")
-    lon = AllValuesFilter(field_name="location__lon")
-    date = DateFromToRangeFilter()
-    time = TimeRangeFilter()
+    id = AllValuesFilter()
+    lat = AllValuesFilter(field_name="coordinate__lat")
+    lon = AllValuesFilter(field_name="coordinate__lon")
+    date = DateFromToRangeFilter(field_name="coordinate__measure_time__date")
+    time = TimeRangeFilter(field_name="coordinate__measure_time__time")
 
     class Meta:
-        model = Data
-        fields = ["buoy", "lat", "lon", "date", "time"]
+        model = Buoy
+        fields = ["id", "lat", "lon", "date", "time"]
