@@ -6,7 +6,7 @@ from django_filters import DateFromToRangeFilter, FilterSet,  TimeRangeFilter, A
 
 class Buoy(models.Model):
     id = models.IntegerField(
-        help_text="Buoy ID", default='0', primary_key=True)
+        help_text="Buoy ID", default=0, primary_key=True)
     voltage = models.FloatField(null=True)
 
     def __str__(self):
@@ -25,7 +25,7 @@ class Coordinate(models.Model):
 
 class MeasureTime(models.Model):
     coordinate = models.ForeignKey(
-        Coordinate, related_name='measure_time', on_delete=models.PROTECT, db_column="coordinate_id")
+        Coordinate, related_name='measure_time', on_delete=models.PROTECT, default='0', db_column="coordinate_id")
     date = models.DateField()
     time = models.TimeField()
 
@@ -35,7 +35,7 @@ class MeasureTime(models.Model):
 
 class Measure(models.Model):
     measure_time = models.ForeignKey(
-        MeasureTime, related_name='measure', on_delete=models.PROTECT, db_column="measure_time_id")
+        MeasureTime, related_name='measure', on_delete=models.PROTECT, default='0', db_column="measure_time_id")
     temp = models.FloatField()
     oxy = models.FloatField()
     ph = models.FloatField()
