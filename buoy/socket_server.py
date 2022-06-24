@@ -52,12 +52,13 @@ def binder(client_socket, addr):
                     Buoy.objects.filter(id=int(msg[1:4])).update(
                         voltage=int(msg[4:7])/10)
                     if Coordinate.objects.filter(buoy_id__id=int(msg[1:4])):
-                        coordinate = Coordinate.objects.get(
+                        coordinate = Coordinate.objects.filter(
                             buoy_id__id=int(msg[1:4]))
                         coordinate.update(
                             lat=int(msg[7:13])/10000, lon=int(msg[13:20])/10000)
                         measure_time = MeasureTime.objects.create(
-                            coordinate=coordinate,
+                            coordinate=Coordinate.objects.get(
+                                buoy_id__id=int(msg[1:4])),
                             date=now.strftime('%Y-%m-%d'),
                             time=now.strftime('%H:%M:%S')
                         )
