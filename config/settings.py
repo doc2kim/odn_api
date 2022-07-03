@@ -28,12 +28,13 @@ SECRET_KEY = os.environ.get(
 DEBUG = False
 # DEBUG = True
 
-ALLOWED_HOSTS = ['.api.odn-it.com',
-                 '.odn-it.com',
-                 '127.0.0.1',
-                 'localhost',
-                 '.elasticbeanstalk.com',
-                 ]
+ALLOWED_HOSTS = [
+    '.api.odn-it.com',
+    '.odn-it.com',
+    '127.0.0.1',
+    'localhost',
+    '.elasticbeanstalk.com',
+]
 
 
 # Application definition
@@ -161,10 +162,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 5,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'ODN REST API Document',

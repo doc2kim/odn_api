@@ -1,9 +1,12 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import BuoySerializer
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter,  extend_schema_view
 from rest_framework.viewsets import ModelViewSet
 from drf_spectacular.utils import extend_schema
-from .models import Buoy, DataFilter
+from drf_spectacular.utils import OpenApiParameter,  extend_schema_view
+from .serializers import BuoySerializer
+from .models import Buoy
+from .serializers import DataFilter
+from django_filters.rest_framework import DjangoFilterBackend
+# from rest_framework import status
+# from rest_framework.response import Response
 
 
 @extend_schema_view(
@@ -17,11 +20,11 @@ from .models import Buoy, DataFilter
             • Coordinate
                 - lat : 위도
                 - lon : 경도
-                
+
                 • Measure Time
                     - date : 측정 날짜
                     - time : 측정 시간
-                
+
                     • Measure
                         - temp: 온도(℃)
                         - oxy: 용존산소 (mg/L)
@@ -29,10 +32,14 @@ from .models import Buoy, DataFilter
                         - ppt : 염도(ppt)
                         - orp : 산화환원전위(mV)
                         - c4e : 전기전도도(uS/cm)
-            
-            
         """,
         parameters=[
+            OpenApiParameter(
+                name='size',
+                type=int,
+                description="한 페이지당 데이터 출력 개수 </br> ※ Default = 10",
+                required=False,
+            ),
             OpenApiParameter(
                 name='id',
                 type=int,
@@ -42,7 +49,7 @@ from .models import Buoy, DataFilter
             OpenApiParameter(
                 name='lat',
                 type=float,
-                description="GPS 위도",
+                description="GPS 위도 ",
                 required=False,
             ),
             OpenApiParameter(
@@ -52,43 +59,35 @@ from .models import Buoy, DataFilter
                 required=False,
             ),
             OpenApiParameter(
-                name='date_after',
+                name='range_date_after',
                 type=str,
-                description="범위검색 시작날짜 'yyyy-mm-dd'",
+                description="범위검색 시작날짜 'yyyy-mm-dd' </br> ※ 단일 날짜 검색시 시작/종료 날짜 동일하게 요청",
                 required=False
             ),
             OpenApiParameter(
-                name='date_before',
+                name='range_date_before',
                 type=str,
                 description="범위검색 종료날짜 'yyyy-mm-dd'",
                 required=False
             ),
             OpenApiParameter(
-                name='time_after',
+                name='range_time_after',
                 type=str,
-                description="범위검색 시작시간 'hh:mm:ss'",
+                description="범위검색 시작시간 'hh:mm:ss </br> ※ 단일 시간 검색시 시작/종료 시간 동일하게 요청",
                 required=False
             ),
             OpenApiParameter(
-                name='time_before',
+                name='range_time_before',
                 type=str,
                 description="범위검색 종료시간 'hh:mm:ss'",
-                required=False
-            ),
-            OpenApiParameter(
-                name='page',
-                type=int,
-                description="페이지 번호",
                 required=False
             ),
         ]
     ),
 )
 class BuoyDataView(ModelViewSet):
+    model = Buoy
     serializer_class = BuoySerializer
     queryset = Buoy.objects.all()
     filter_backends = [DjangoFilterBackend]
     filter_class = DataFilter
-
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
