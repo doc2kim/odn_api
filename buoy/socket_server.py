@@ -1,9 +1,16 @@
 import os
 import sys
 import json
+import math
 import socket
 import time
 import threading
+import struct
+
+
+def truncate(number, digits):
+    stepper = 10.0 ** digits
+    return math.trunc(stepper * number) / stepper
 
 
 def binder(client_socket, addr):
@@ -35,128 +42,202 @@ def binder(client_socket, addr):
     settings.DATABASES["default"]["PASSWORD"] = get_secret("RDS_PASSWORD")
     settings.DATABASES["default"]["PORT"] = get_secret("RDS_PORT")
 
-    from buoy.models import Buoy, Coordinate, MeasureTime, Measure
+    from buoy.models import Buoy, Location, Measure, Sensor1, Sensor2, Sensor3
+
     now = time
 
     try:
         while True:
-            receive_data = client_socket.recv(50)
+            receive_data = client_socket.recv(63)
             if not receive_data:
                 print(addr, "to quit!")
                 print("Waiting for next data...")
                 break
-            msg = receive_data.decode()
+
+            msg = receive_data.hex()
+            print("data received!!", time.strftime(
+                '%Y-%m-%d'), time.strftime('%H:%M:%S'))
+
             if msg:
                 print('Received from', addr, msg)
-                if Buoy.objects.filter(id=int(msg[1:4])):
-                    Buoy.objects.filter(id=int(msg[1:4])).update(
-                        voltage=int(msg[4:7])/10)
-                    if Coordinate.objects.filter(buoy_id__id=int(msg[1:4])):
-                        coordinate = Coordinate.objects.filter(
-                            buoy_id__id=int(msg[1:4]))
-                        coordinate.update(
-                            lat=int(msg[7:13])/10000, lon=int(msg[13:20])/10000)
-                        measure_time = MeasureTime.objects.create(
-                            coordinate=Coordinate.objects.get(
-                                buoy_id__id=int(msg[1:4])),
-                            date=now.strftime('%Y-%m-%d'),
-                            time=now.strftime('%H:%M:%S')
+                lat = truncate(int(msg[10:18], 16)/1000000, 4)
+                lon = truncate(int(msg[18: 26], 16)/1000000, 4)
+                print(lat)
+                print(lon)
+                if Buoy.objects.filter(buoy_id=int(msg[:8], 16)):
+                    Buoy.objects.filter(buoy_id=int(msg[:8], 16)).update(
+                        battery=int(msg[8:10], 16))
+                    if Location.objects.filter(buoy__buoy_id=int(msg[:8], 16), latitude__range=(round(lat - 0.0002, 5), round(lat + 0.0002, 5)), longitude__range=(round(lon - 0.0002, 5), round(lon + 0.0002, 5))):
+                        location = Location.objects.get(buoy__buoy_id=int(msg[:8], 16), latitude__range=(round(
+                            lat - 0.0002, 5), round(lat + 0.0002, 5)), longitude__range=(round(lon - 0.0002, 5), round(lon + 0.0002, 5)))
+                        sensor1 = Sensor1.objects.create(
+                            temperature=struct.unpack(
+                                '!f', bytes.fromhex(msg[26:34]))[0],
+                            oxygen_per=struct.unpack(
+                                '!f', bytes.fromhex(msg[34:42]))[0],
+                            oxygen_mpl=struct.unpack(
+                                '!f', bytes.fromhex(msg[42:50]))[0],
+                            oxygen_ppm=struct.unpack(
+                                '!f', bytes.fromhex(msg[50:58]))[0],
+                        )
+                        sensor2 = Sensor2.objects.create(
+                            temperature=struct.unpack(
+                                '!f', bytes.fromhex(msg[58:66]))[0],
+                            ph=struct.unpack(
+                                '!f', bytes.fromhex(msg[66:74]))[0],
+                            redox=struct.unpack(
+                                '!f', bytes.fromhex(msg[74:82]))[0],
+                            ph_meter=struct.unpack(
+                                '!f', bytes.fromhex(msg[82:90]))[0],
+                        )
+                        sensor3 = Sensor3.objects.create(
+                            temperature=struct.unpack(
+                                '!f', bytes.fromhex(msg[90:98]))[0],
+                            conductivity=struct.unpack(
+                                '!f', bytes.fromhex(msg[98:106]))[0],
+                            salinity=struct.unpack(
+                                '!f', bytes.fromhex(msg[106:114]))[0],
+                            tds=struct.unpack(
+                                '!f', bytes.fromhex(msg[114:122]))[0],
                         )
                         measure = Measure.objects.create(
-                            measure_time=measure_time,
-                            temp=int(msg[20:24])/100,
-                            oxy=int(msg[24:28])/100,
-                            ph=int(msg[28:32])/100,
-                            orp=int(msg[32:36]),
-                            c4e=int(msg[36:40]),
-                            ppt=int(msg[40:44])/100,
-                            crc=str(msg[44:48]),
+                            location=location,
+                            date=now.strftime('%Y-%m-%d'),
+                            time=now.strftime('%H:%M:%S'),
+                            sensor1=sensor1,
+                            sensor2=sensor2,
+                            sensor3=sensor3,
+                            crc=str(msg[122:126]),
                         )
-                        measure_time.save()
+                        sensor1, sensor2, sensor3.save()
                         measure.save()
                     else:
-                        buoy = Buoy.objects.get(id=int(msg[1:4]))
-                        coordinate = Coordinate.objects.create(
-                            buoy_id=buoy,
-                            lat=int(msg[7:13])/10000,
-                            lon=int(msg[13:20])/10000,
+                        buoy = Buoy.objects.get(buoy_id=int(msg[:8], 16))
+                        location = Location.objects.create(
+                            buoy=buoy,
+                            latitude=lat,
+                            longitude=lon
                         )
-                        measure_time = MeasureTime.objects.create(
-                            coordinate=coordinate,
-                            date=now.strftime('%Y-%m-%d'),
-                            time=now.strftime('%H:%M:%S')
+                        sensor1 = Sensor1.objects.create(
+                            temperature=struct.unpack(
+                                '!f', bytes.fromhex(msg[26:34]))[0],
+                            oxygen_per=struct.unpack(
+                                '!f', bytes.fromhex(msg[34:42]))[0],
+                            oxygen_mpl=struct.unpack(
+                                '!f', bytes.fromhex(msg[42:50]))[0],
+                            oxygen_ppm=struct.unpack(
+                                '!f', bytes.fromhex(msg[50:58]))[0],
+                        )
+                        sensor2 = Sensor2.objects.create(
+                            temperature=struct.unpack(
+                                '!f', bytes.fromhex(msg[58:66]))[0],
+                            ph=struct.unpack(
+                                '!f', bytes.fromhex(msg[66:74]))[0],
+                            redox=struct.unpack(
+                                '!f', bytes.fromhex(msg[74:82]))[0],
+                            ph_meter=struct.unpack(
+                                '!f', bytes.fromhex(msg[82:90]))[0],
+                        )
+                        sensor3 = Sensor3.objects.create(
+                            temperature=struct.unpack(
+                                '!f', bytes.fromhex(msg[90:98]))[0],
+                            conductivity=struct.unpack(
+                                '!f', bytes.fromhex(msg[98:106]))[0],
+                            salinity=struct.unpack(
+                                '!f', bytes.fromhex(msg[106:114]))[0],
+                            tds=struct.unpack(
+                                '!f', bytes.fromhex(msg[114:122]))[0],
                         )
                         measure = Measure.objects.create(
-                            measure_time=measure_time,
-                            temp=int(msg[20:24])/100,
-                            oxy=int(msg[24:28])/100,
-                            ph=int(msg[28:32])/100,
-                            orp=int(msg[32:36]),
-                            c4e=int(msg[36:40]),
-                            ppt=int(msg[40:44])/100,
-                            crc=str(msg[44:48]),
+                            location=location,
+                            date=now.strftime('%Y-%m-%d'),
+                            time=now.strftime('%H:%M:%S'),
+                            sensor1=sensor1,
+                            sensor2=sensor2,
+                            sensor3=sensor3,
+                            crc=str(msg[122:126]),
                         )
-                        coordinate.save()
-                        measure_time.save()
+                        location.save()
+                        sensor1, sensor2, sensor3.save()
                         measure.save()
                 else:
                     buoy = Buoy.objects.create(
-                        id=int(msg[1:4]),
-                        voltage=int(msg[4:7])/10
+                        buoy_id=int(msg[:8], 16),
+                        battery=int(msg[8:10], 16)
                     )
-                    coordinate = Coordinate.objects.create(
-                        buoy_id=buoy,
-                        lat=int(msg[7:13])/10000,
-                        lon=int(msg[13:20])/10000,
+                    location = Location.objects.create(
+                        buoy=buoy,
+                        latitude=lat,
+                        longitude=lon
                     )
-                    measure_time = MeasureTime.objects.create(
-                        coordinate=coordinate,
-                        date=now.strftime('%Y-%m-%d'),
-                        time=now.strftime('%H:%M:%S')
+                    sensor1 = Sensor1.objects.create(
+                        temperature=struct.unpack(
+                            '!f', bytes.fromhex(msg[26:34]))[0],
+                        oxygen_per=struct.unpack(
+                            '!f', bytes.fromhex(msg[34:42]))[0],
+                        oxygen_mpl=struct.unpack(
+                            '!f', bytes.fromhex(msg[42:50]))[0],
+                        oxygen_ppm=struct.unpack(
+                            '!f', bytes.fromhex(msg[50:58]))[0],
+                    )
+                    sensor2 = Sensor2.objects.create(
+                        temperature=struct.unpack(
+                            '!f', bytes.fromhex(msg[58:66]))[0],
+                        ph=struct.unpack(
+                            '!f', bytes.fromhex(msg[66:74]))[0],
+                        redox=struct.unpack(
+                            '!f', bytes.fromhex(msg[74:82]))[0]
+                    )
+                    sensor3 = Sensor3.objects.create(
+                        temperature=struct.unpack(
+                            '!f', bytes.fromhex(msg[90:98]))[0],
+                        conductivity=struct.unpack(
+                            '!f', bytes.fromhex(msg[98:106]))[0],
+                        salinity=struct.unpack(
+                            '!f', bytes.fromhex(msg[106:114]))[0],
+                        tds=struct.unpack(
+                            '!f', bytes.fromhex(msg[114:122]))[0],
                     )
                     measure = Measure.objects.create(
-                        measure_time=measure_time,
-                        temp=int(msg[20:24])/100,
-                        oxy=int(msg[24:28])/100,
-                        ph=int(msg[28:32])/100,
-                        orp=int(msg[32:36]),
-                        c4e=int(msg[36:40]),
-                        ppt=int(msg[40:44])/100,
-                        crc=str(msg[44:48]),
+                        location=location,
+                        date=now.strftime('%Y-%m-%d'),
+                        time=now.strftime('%H:%M:%S'),
+                        sensor1=sensor1,
+                        sensor2=sensor2,
+                        sensor3=sensor3,
+                        crc=str(msg[122:126]),
                     )
                     buoy.save()
-                    coordinate.save()
-                    measure_time.save()
+                    location.save()
+                    sensor1, sensor2, sensor3.save()
                     measure.save()
-                # print("id : ", int(msg[1:4]))
-                # print("voltage : ", int(msg[4:7]))
-                # print("lat : ", int(msg[7:13])/10000)
-                # print("lon : ", int(msg[13:20])/10000)
-                # print("temp : ",int(msg[20:24])/100 )
-                # print("oxy : ", int(msg[24:28])/100)
-                # print("ph : ", int(msg[28:32])/100)
-                # print("orp : ", int(msg[32:36]))
-                # print("c4e : ", int(msg[36:40]))
-                # print("ppt : ", int(msg[40:44])/100)
-                # print("crc : ", msg[44:48])
-                # print("date : ", now.strftime('%Y-%m-%d'))
-                # print("time : ", now.strftime('%H:%M:%S'))
-                msg = "echo : " + msg
-                echo_msg = msg.encode()
 
-                # length = len(echo_msg);
-                # client_socket.sendall(length.to_bytes(4, byteorder="big"));
-                client_socket.sendall(echo_msg)
+            length = len(receive_data)
+            client_socket.sendall(length.to_bytes(4, byteorder="big"))
+            client_socket.sendall(receive_data)
+
+            # msg = "echo : " + msg
+            # echo_msg = msg.encode()
+
+            # length = len(echo_msg)
+
+            # client_socket.sendall(length.to_bytes(4, byteorder="big"))
+            # client_socket.sendall(echo_msg)
+            # print(echo_msg)
+
     except ConnectionResetError as e:
         print(e, addr)
 
     finally:
+        print("client socket close!!")
         client_socket.close()
 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('172.31.11.52', 6557))
+# server_socket.bind(('172.30.1.34', 6557))
+
 server_socket.listen()
 
 print('Server start up!')
@@ -167,10 +248,11 @@ try:
         client_socket, addr = server_socket.accept()
         th = threading.Thread(target=binder, args=(client_socket, addr))
         th.start()
-
+        print("Device address : ", addr)
 except socket.error as e:
     print(e)
 
 
 finally:
+    print("server socket close!!")
     server_socket.close()

@@ -1,81 +1,124 @@
 
 from django.contrib import admin
-from .models import Buoy, Coordinate, MeasureTime, Measure
+from .models import Buoy, Location, Measure, Sensor1, Sensor2, Sensor3
 # Register your models here.
 
 
 @admin.register(Buoy)
 class BuoyAdmin(admin.ModelAdmin):
     """Buoy Admin Definition"""
-
     fieldsets = (
         ("Info", {
             "fields": (
-                "id",
-                "voltage",
+                "buoy_id",
+                "battery",
+                "owner"
             )
         }),
     )
 
     list_display = (
-        "id",
-        "voltage",
+        "buoy_id",
+        "battery",
+        "owner"
     )
 
     list_filter = (
-        "id",
-        "voltage",
+        "buoy_id",
+        "battery",
+        "owner"
     )
 
 
-@admin.register(Coordinate)
-class CoordinateAdmin(admin.ModelAdmin):
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
     """Measures Admin Definition"""
 
     fieldsets = (
         ("Info", {
             "fields": (
-                "buoy_id",
-                "lat",
-                "lon",
+                "buoy",
+                "latitude",
+                "longitude",
 
             )
         }),
     )
 
     list_display = (
-        "lat",
-        "lon"
+        "latitude",
+        "longitude"
     )
 
     list_filter = (
-        "lat",
-        "lon"
+        "latitude",
+        "longitude"
     )
 
 
-@admin.register(MeasureTime)
-class MeasuresTimeAdmin(admin.ModelAdmin):
-    """MeasuresTime Admin Definition"""
+@admin.register(Sensor1)
+class Sensor1Admin(admin.ModelAdmin):
+    """Sensor1 Admin Definition"""
+    fieldsets = (
+        ("SensorInfo", {
+            "fields": (
+                "serial_number",
+            )
+        }
+        ),
+        ("Value", {
+            "fields": (
+                "temperature",
+                "oxygen_per",
+                "oxygen_mpl",
+                "oxygen_ppm",
+            ),
+        }
+        )
+    )
 
+
+@admin.register(Sensor2)
+class Sensor2Admin(admin.ModelAdmin):
+    """Sensor2 Admin Definition"""
+    fieldsets = (
+        ("SensorInfo", {
+            "fields": (
+                "serial_number",
+            )
+        }
+        ),
+        ("Value", {
+            "fields": (
+                "temperature",
+                "ph",
+                "redox",
+                "ph_meter",
+            ),
+        }
+        )
+    )
+
+
+@admin.register(Sensor3)
+class Sensor3Admin(admin.ModelAdmin):
+    """Sensor3 Admin Definition"""
     fieldsets = (
         ("Info", {
             "fields": (
-                "coordinate",
-                "date",
-                "time",
+                "serial_number",
+            )
+        }
+        ),
+        ("Value", {
+            "fields": (
+                "temperature",
+                "conductivity",
+                "salinity",
+                "tds",
             ),
-        }),
-    )
-
-    list_display = (
-        "date",
-        "time",
-    )
-
-    list_filter = (
-        "date",
-        "time",
+        }
+        )
     )
 
 
@@ -84,15 +127,23 @@ class MeasureAdmin(admin.ModelAdmin):
     """Measure Admin Definition"""
 
     fieldsets = (
-        ("Data", {
+        ("Info", {
             "fields": (
-                "measure_time",
-                "temp",
-                "oxy",
-                "ph",
-                "ppt",
-                "orp",
-                "c4e",
+                "location",
+                "serial_number",
+            ),
+        }),
+        ("Datetime", {
+            "fields": (
+                "date",
+                "time",
+            ),
+        }),
+        ("SensorData", {
+            "fields": (
+                "sensor1",
+                "sensor2",
+                "sensor3",
             ),
         }),
         ("etc", {
@@ -103,21 +154,15 @@ class MeasureAdmin(admin.ModelAdmin):
     )
 
     list_display = (
-        "temp",
-        "oxy",
-        "ph",
-        "ppt",
-        "orp",
-        "c4e",
+        "serial_number",
+        "date",
+        "time",
         "crc",
     )
 
     list_filter = (
-        "temp",
-        "oxy",
-        "ph",
-        "ppt",
-        "orp",
-        "c4e",
+        "serial_number",
+        "date",
+        "time",
         "crc",
     )
