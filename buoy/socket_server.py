@@ -9,6 +9,7 @@ import struct
 
 
 def truncate(number, digits):
+    # 소수점 digits 자리 이후 값 버림
     stepper = 10.0 ** digits
     return math.trunc(stepper * number) / stepper
 
@@ -21,29 +22,29 @@ def binder(client_socket, addr):
 
     import django
     django.setup()
-    from django.core.exceptions import ImproperlyConfigured
-    from django.conf import settings
 
-    secrets_file = os.path.join("/var/app/current", 'secrets.json')
+    # from django.core.exceptions import ImproperlyConfigured
+    # from django.conf import settings
 
-    with open(secrets_file) as f:
-        secrets = json.loads(f.read())
+    # secrets_file = os.path.join("/var/app/current", 'secrets.json')
 
-    def get_secret(setting, secrets=secrets):
-        try:
-            return secrets[setting]
-        except KeyError:
-            error_msg = "Set the {} environment variable".format(setting)
-            raise ImproperlyConfigured(error_msg)
+    # with open(secrets_file) as f:
+    #     secrets = json.loads(f.read())
 
-    settings.DATABASES["default"]['HOST'] = get_secret("RDS_HOST")
-    settings.DATABASES["default"]["NAME"] = get_secret("RDS_NAME")
-    settings.DATABASES["default"]["USER"] = get_secret("RDS_USER")
-    settings.DATABASES["default"]["PASSWORD"] = get_secret("RDS_PASSWORD")
-    settings.DATABASES["default"]["PORT"] = get_secret("RDS_PORT")
+    # def get_secret(setting, secrets=secrets):
+    #     try:
+    #         return secrets[setting]
+    #     except KeyError:
+    #         error_msg = "Set the {} environment variable".format(setting)
+    #         raise ImproperlyConfigured(error_msg)
+
+    # settings.DATABASES["default"]['HOST'] = get_secret("RDS_HOST")
+    # settings.DATABASES["default"]["NAME"] = get_secret("RDS_NAME")
+    # settings.DATABASES["default"]["USER"] = get_secret("RDS_USER")
+    # settings.DATABASES["default"]["PASSWORD"] = get_secret("RDS_PASSWORD")
+    # settings.DATABASES["default"]["PORT"] = get_secret("RDS_PORT")
 
     from buoy.models import Buoy, Location, Measure, Sensor1, Sensor2, Sensor3
-
     now = time
 
     try:
@@ -60,45 +61,77 @@ def binder(client_socket, addr):
 
             if msg:
                 print('Received from', addr, msg)
-                lat = truncate(int(msg[10:18], 16)/1000000, 4)
-                lon = truncate(int(msg[18: 26], 16)/1000000, 4)
-                print(lat)
-                print(lon)
-                if Buoy.objects.filter(buoy_id=int(msg[:8], 16)):
-                    Buoy.objects.filter(buoy_id=int(msg[:8], 16)).update(
-                        battery=int(msg[8:10], 16))
-                    if Location.objects.filter(buoy__buoy_id=int(msg[:8], 16), latitude__range=(round(lat - 0.0002, 5), round(lat + 0.0002, 5)), longitude__range=(round(lon - 0.0002, 5), round(lon + 0.0002, 5))):
-                        location = Location.objects.get(buoy__buoy_id=int(msg[:8], 16), latitude__range=(round(
-                            lat - 0.0002, 5), round(lat + 0.0002, 5)), longitude__range=(round(lon - 0.0002, 5), round(lon + 0.0002, 5)))
+
+                buoy_id = int(msg[:8], 16)
+                battery = int(msg[8:10], 16)
+
+# lon = truncate(int(msg[18: 26], 16)/1000000, 4)
+
+                lat = int(msg[10:18], 16)/1000000
+                lon = int(msg[18:26], 16)/1000000
+                print("lat : ", lat)
+                print("lat round plus : ", round(lat + 0.0002, 5))
+                print("lat round minus : ", round(lat - 0.0002, 5))
+                print('lon : ', lon)
+                print("lon round plus : ", round(lon + 0.0002, 5))
+                print('lon round minus : ', round(lon - 0.0002, 5))
+
+                sensor1_temp = struct.unpack(
+                    '!f', bytes.fromhex(msg[26:34]))[0]
+                sensor1_oxy_per = struct.unpack(
+                    '!f', bytes.fromhex(msg[34:42]))[0]
+                sensor1_oxy_mpl = struct.unpack(
+                    '!f', bytes.fromhex(msg[42:50]))[0]
+                sensor1_oxy_ppm = struct.unpack(
+                    '!f', bytes.fromhex(msg[50:58]))[0]
+
+                sensor2_temp = struct.unpack(
+                    '!f', bytes.fromhex(msg[58:66]))[0]
+                sensor2_ph = struct.unpack('!f', bytes.fromhex(msg[66:74]))[0]
+                sensor2_redox = struct.unpack(
+                    '!f', bytes.fromhex(msg[74:82]))[0]
+                sensor2_ph_meter = struct.unpack(
+                    '!f', bytes.fromhex(msg[82:90]))[0]
+
+                sensor3_temp = struct.unpack(
+                    '!f', bytes.fromhex(msg[90:98]))[0]
+                sensor3_conduct = struct.unpack(
+                    '!f', bytes.fromhex(msg[98:106]))[0]
+                sensor3_salt = struct.unpack(
+                    '!f', bytes.fromhex(msg[106:114]))[0]
+                sensor3_tds = struct.unpack(
+                    '!f', bytes.fromhex(msg[114:122]))[0]
+
+                modbus_crc = str(msg[122:126])
+
+                if Buoy.objects.filter(buoy_id=buoy_id):
+                    Buoy.objects.filter(
+                        buoy_id=buoy_id).update(battery=battery)
+
+                    qs = Location.objects.filter(buoy__buoy_id=buoy_id, latitude__range=(
+                        round(lat - 0.0002, 5), round(lat + 0.0002, 5)), longitude__range=(round(lon - 0.0002, 5), round(lon + 0.0002, 5)))
+
+                    location = qs.first() if len(qs) == 1 else min(qs, key=lambda x: abs(
+                        x.latitude - lat and x.longitude - lon)) if len(qs) > 1 else None
+
+                    if location:
                         sensor1 = Sensor1.objects.create(
-                            temperature=struct.unpack(
-                                '!f', bytes.fromhex(msg[26:34]))[0],
-                            oxygen_per=struct.unpack(
-                                '!f', bytes.fromhex(msg[34:42]))[0],
-                            oxygen_mpl=struct.unpack(
-                                '!f', bytes.fromhex(msg[42:50]))[0],
-                            oxygen_ppm=struct.unpack(
-                                '!f', bytes.fromhex(msg[50:58]))[0],
+                            temperature=sensor1_temp,
+                            oxygen_per=sensor1_oxy_per,
+                            oxygen_mpl=sensor1_oxy_mpl,
+                            oxygen_ppm=sensor1_oxy_ppm,
                         )
                         sensor2 = Sensor2.objects.create(
-                            temperature=struct.unpack(
-                                '!f', bytes.fromhex(msg[58:66]))[0],
-                            ph=struct.unpack(
-                                '!f', bytes.fromhex(msg[66:74]))[0],
-                            redox=struct.unpack(
-                                '!f', bytes.fromhex(msg[74:82]))[0],
-                            ph_meter=struct.unpack(
-                                '!f', bytes.fromhex(msg[82:90]))[0],
+                            temperature=sensor2_temp,
+                            ph=sensor2_ph,
+                            redox=sensor2_redox,
+                            ph_meter=sensor2_ph_meter,
                         )
                         sensor3 = Sensor3.objects.create(
-                            temperature=struct.unpack(
-                                '!f', bytes.fromhex(msg[90:98]))[0],
-                            conductivity=struct.unpack(
-                                '!f', bytes.fromhex(msg[98:106]))[0],
-                            salinity=struct.unpack(
-                                '!f', bytes.fromhex(msg[106:114]))[0],
-                            tds=struct.unpack(
-                                '!f', bytes.fromhex(msg[114:122]))[0],
+                            temperature=sensor3_temp,
+                            conductivity=sensor3_conduct,
+                            salinity=sensor3_salt,
+                            tds=sensor3_tds,
                         )
                         measure = Measure.objects.create(
                             location=location,
@@ -107,46 +140,38 @@ def binder(client_socket, addr):
                             sensor1=sensor1,
                             sensor2=sensor2,
                             sensor3=sensor3,
-                            crc=str(msg[122:126]),
+                            crc=modbus_crc,
                         )
                         sensor1, sensor2, sensor3.save()
                         measure.save()
+
+                    # elif len(qs) > 1:
+                    #     location = min(qs, key=lambda x: abs(x.latitude - lat and x.longitude - lon))
+
                     else:
-                        buoy = Buoy.objects.get(buoy_id=int(msg[:8], 16))
+                        buoy = Buoy.objects.get(buoy_id=buoy_id)
                         location = Location.objects.create(
                             buoy=buoy,
-                            latitude=lat,
-                            longitude=lon
+                            latitude=truncate(lat, 4),
+                            longitude=truncate(lon, 4)
                         )
                         sensor1 = Sensor1.objects.create(
-                            temperature=struct.unpack(
-                                '!f', bytes.fromhex(msg[26:34]))[0],
-                            oxygen_per=struct.unpack(
-                                '!f', bytes.fromhex(msg[34:42]))[0],
-                            oxygen_mpl=struct.unpack(
-                                '!f', bytes.fromhex(msg[42:50]))[0],
-                            oxygen_ppm=struct.unpack(
-                                '!f', bytes.fromhex(msg[50:58]))[0],
+                            temperature=sensor1_temp,
+                            oxygen_per=sensor1_oxy_per,
+                            oxygen_mpl=sensor1_oxy_mpl,
+                            oxygen_ppm=sensor1_oxy_ppm,
                         )
                         sensor2 = Sensor2.objects.create(
-                            temperature=struct.unpack(
-                                '!f', bytes.fromhex(msg[58:66]))[0],
-                            ph=struct.unpack(
-                                '!f', bytes.fromhex(msg[66:74]))[0],
-                            redox=struct.unpack(
-                                '!f', bytes.fromhex(msg[74:82]))[0],
-                            ph_meter=struct.unpack(
-                                '!f', bytes.fromhex(msg[82:90]))[0],
+                            temperature=sensor2_temp,
+                            ph=sensor2_ph,
+                            redox=sensor2_redox,
+                            ph_meter=sensor2_ph_meter,
                         )
                         sensor3 = Sensor3.objects.create(
-                            temperature=struct.unpack(
-                                '!f', bytes.fromhex(msg[90:98]))[0],
-                            conductivity=struct.unpack(
-                                '!f', bytes.fromhex(msg[98:106]))[0],
-                            salinity=struct.unpack(
-                                '!f', bytes.fromhex(msg[106:114]))[0],
-                            tds=struct.unpack(
-                                '!f', bytes.fromhex(msg[114:122]))[0],
+                            temperature=sensor3_temp,
+                            conductivity=sensor3_conduct,
+                            salinity=sensor3_salt,
+                            tds=sensor3_tds,
                         )
                         measure = Measure.objects.create(
                             location=location,
@@ -155,7 +180,7 @@ def binder(client_socket, addr):
                             sensor1=sensor1,
                             sensor2=sensor2,
                             sensor3=sensor3,
-                            crc=str(msg[122:126]),
+                            crc=modbus_crc,
                         )
                         location.save()
                         sensor1, sensor2, sensor3.save()
@@ -167,36 +192,26 @@ def binder(client_socket, addr):
                     )
                     location = Location.objects.create(
                         buoy=buoy,
-                        latitude=lat,
-                        longitude=lon
+                        latitude=truncate(lat, 4),
+                        longitude=truncate(lon, 4)
                     )
                     sensor1 = Sensor1.objects.create(
-                        temperature=struct.unpack(
-                            '!f', bytes.fromhex(msg[26:34]))[0],
-                        oxygen_per=struct.unpack(
-                            '!f', bytes.fromhex(msg[34:42]))[0],
-                        oxygen_mpl=struct.unpack(
-                            '!f', bytes.fromhex(msg[42:50]))[0],
-                        oxygen_ppm=struct.unpack(
-                            '!f', bytes.fromhex(msg[50:58]))[0],
+                        temperature=sensor1_temp,
+                        oxygen_per=sensor1_oxy_per,
+                        oxygen_mpl=sensor1_oxy_mpl,
+                        oxygen_ppm=sensor1_oxy_ppm,
                     )
                     sensor2 = Sensor2.objects.create(
-                        temperature=struct.unpack(
-                            '!f', bytes.fromhex(msg[58:66]))[0],
-                        ph=struct.unpack(
-                            '!f', bytes.fromhex(msg[66:74]))[0],
-                        redox=struct.unpack(
-                            '!f', bytes.fromhex(msg[74:82]))[0]
+                        temperature=sensor2_temp,
+                        ph=sensor2_ph,
+                        redox=sensor2_redox,
+                        ph_meter=sensor2_ph_meter,
                     )
                     sensor3 = Sensor3.objects.create(
-                        temperature=struct.unpack(
-                            '!f', bytes.fromhex(msg[90:98]))[0],
-                        conductivity=struct.unpack(
-                            '!f', bytes.fromhex(msg[98:106]))[0],
-                        salinity=struct.unpack(
-                            '!f', bytes.fromhex(msg[106:114]))[0],
-                        tds=struct.unpack(
-                            '!f', bytes.fromhex(msg[114:122]))[0],
+                        temperature=sensor3_temp,
+                        conductivity=sensor3_conduct,
+                        salinity=sensor3_salt,
+                        tds=sensor3_tds,
                     )
                     measure = Measure.objects.create(
                         location=location,
@@ -205,7 +220,7 @@ def binder(client_socket, addr):
                         sensor1=sensor1,
                         sensor2=sensor2,
                         sensor3=sensor3,
-                        crc=str(msg[122:126]),
+                        crc=modbus_crc,
                     )
                     buoy.save()
                     location.save()
@@ -235,11 +250,10 @@ def binder(client_socket, addr):
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind(('172.31.11.52', 6557))
-# server_socket.bind(('172.30.1.34', 6557))
+# server_socket.bind(('172.31.11.52', 6557))
+server_socket.bind(('172.30.1.33', 6557))
 
 server_socket.listen()
-
 print('Server start up!')
 
 try:
@@ -251,7 +265,6 @@ try:
         print("Device address : ", addr)
 except socket.error as e:
     print(e)
-
 
 finally:
     print("server socket close!!")

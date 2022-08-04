@@ -147,3 +147,5 @@ node_modules/
 
 db.sqlite3
 secrets.json
+test.json
+test.py

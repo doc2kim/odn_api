@@ -8,9 +8,6 @@ class Buoy(models.Model):
     owner = models.CharField(
         max_length=200, default="ODN", help_text='스마트부표 소유자')
 
-    class Meta:
-        ordering = ['-buoy_id']
-
     def __str__(self):
         return '{}'.format(self.buoy_id)
 
