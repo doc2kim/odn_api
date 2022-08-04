@@ -23,26 +23,26 @@ def binder(client_socket, addr):
     import django
     django.setup()
 
-    # from django.core.exceptions import ImproperlyConfigured
-    # from django.conf import settings
+    from django.core.exceptions import ImproperlyConfigured
+    from django.conf import settings
 
-    # secrets_file = os.path.join("/var/app/current", 'secrets.json')
+    secrets_file = os.path.join("/var/app/current", 'secrets.json')
 
-    # with open(secrets_file) as f:
-    #     secrets = json.loads(f.read())
+    with open(secrets_file) as f:
+        secrets = json.loads(f.read())
 
-    # def get_secret(setting, secrets=secrets):
-    #     try:
-    #         return secrets[setting]
-    #     except KeyError:
-    #         error_msg = "Set the {} environment variable".format(setting)
-    #         raise ImproperlyConfigured(error_msg)
+    def get_secret(setting, secrets=secrets):
+        try:
+            return secrets[setting]
+        except KeyError:
+            error_msg = "Set the {} environment variable".format(setting)
+            raise ImproperlyConfigured(error_msg)
 
-    # settings.DATABASES["default"]['HOST'] = get_secret("RDS_HOST")
-    # settings.DATABASES["default"]["NAME"] = get_secret("RDS_NAME")
-    # settings.DATABASES["default"]["USER"] = get_secret("RDS_USER")
-    # settings.DATABASES["default"]["PASSWORD"] = get_secret("RDS_PASSWORD")
-    # settings.DATABASES["default"]["PORT"] = get_secret("RDS_PORT")
+    settings.DATABASES["default"]['HOST'] = get_secret("RDS_HOST")
+    settings.DATABASES["default"]["NAME"] = get_secret("RDS_NAME")
+    settings.DATABASES["default"]["USER"] = get_secret("RDS_USER")
+    settings.DATABASES["default"]["PASSWORD"] = get_secret("RDS_PASSWORD")
+    settings.DATABASES["default"]["PORT"] = get_secret("RDS_PORT")
 
     from buoy.models import Buoy, Location, Measure, Sensor1, Sensor2, Sensor3
     now = time
