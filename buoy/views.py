@@ -51,33 +51,51 @@ from django_filters.rest_framework import DjangoFilterBackend
         """,
         parameters=[
             OpenApiParameter(
+                name='buoy_id',
+                type=str,
+                description='스마트 부표 아이디',
+                required=False
+            ),
+            OpenApiParameter(
+                name='location_lat',
+                type=str,
+                description='위도',
+                required=False
+            ),
+            OpenApiParameter(
+                name='location_lon',
+                type=str,
+                description='경도',
+                required=False
+            ),
+            OpenApiParameter(
                 name='size',
                 type=int,
                 description="한 페이지당 데이터 출력 개수 </br> ※ Default = 10",
                 required=False,
             ),
             OpenApiParameter(
-                name='range_date_after',
+                name='scope_date_start',
                 type=str,
                 description="범위검색 시작날짜 'yyyy-mm-dd' </br> ※ 단일 날짜 검색시 시작/종료 날짜 동일하게 요청",
                 required=False
             ),
             OpenApiParameter(
-                name='range_date_before',
+                name='scope_date_stop',
                 type=str,
                 description="범위검색 종료날짜 'yyyy-mm-dd'",
                 required=False
             ),
             OpenApiParameter(
-                name='range_time_after',
+                name='scope_time_start',
                 type=str,
                 description="범위검색 시작시간 'hh:mm:ss </br> ※ 단일 시간 검색시 시작/종료 시간 동일하게 요청",
                 required=False
             ),
             OpenApiParameter(
-                name='range_time_before',
+                name='scope_time_stop',
                 type=str,
-                description="범위검색 종료시간 'hh:mm:ss'",
+                description="범위검색 종료시간 'hh:mm:ss",
                 required=False
             ),
         ]

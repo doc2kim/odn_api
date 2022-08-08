@@ -250,8 +250,8 @@ def binder(client_socket, addr):
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# server_socket.bind(('172.31.11.52', 6557))
-server_socket.bind(('172.30.1.33', 6557))
+server_socket.bind(('172.31.11.52', 6557))
+# server_socket.bind(('172.30.1.33', 6557))
 
 server_socket.listen()
 print('Server start up!')
