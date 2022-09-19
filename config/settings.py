@@ -26,16 +26,18 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = [
-    '.api.odn-it.com',
-    '.odn-it.com',
-    '127.0.0.1',
-    'localhost',
-    '.elasticbeanstalk.com',
-]
+ALLOWED_HOSTS = ["*"]
+
+# ALLOWED_HOSTS = [
+#     '.api.odn-it.com',
+#     '.odn-it.com',
+#     '127.0.0.1',
+#     'localhost',
+#     '.elasticbeanstalk.com',
+# ]
 
 
 # Application definition
@@ -132,7 +134,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:8000', 'http://localhost:3000']
+CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:8000', 'http://localhost:3000',
+                         'http://odndashboard.s3-website.ap-northeast-2.amazonaws.com', '.odn.us']
 CORS_ALLOW_CREDENTIALS = True
 
 # Internationalization
