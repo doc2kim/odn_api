@@ -15,14 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+
 from drf_spectacular.views import SpectacularSwaggerView
 from drf_spectacular.views import SpectacularJSONAPIView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('buoy.urls'),),
+    path('devices/', include('device.urls'),),
     path("docs/json/", SpectacularJSONAPIView.as_view(), name="schema-json"),
     path("", SpectacularSwaggerView.as_view(url_name="schema-json"),
          name="swagger-ui",)
 ]
+
+
+admin.site.site_header = 'ODN API ADMIN'
+admin.site.site_title = 'ODN API ADMIN'

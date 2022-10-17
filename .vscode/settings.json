@@ -1,5 +1,10 @@
 {
     "cSpell.words": [
+        "chlorophylls",
+        "geocoders",
+        "geopy",
+        "Nominatim",
+        "spatialite",
         "viewsets"
     ]
 }

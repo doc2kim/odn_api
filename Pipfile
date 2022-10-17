@@ -11,6 +11,9 @@ django = "*"
 django-filter = "*"
 django-cors-headers = "*"
 drf-spectacular = "*"
+djangorestframework-gis = "*"
+geopy = "*"
+django-address = "*"
 
 [dev-packages]
 autopep8 = "*"

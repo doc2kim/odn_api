@@ -26,8 +26,8 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -49,14 +49,15 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_filters',
+    'django.contrib.gis',
     'rest_framework',
+    "rest_framework_gis",
     'corsheaders',
     'drf_spectacular',
 ]
 
 PROJECT_APPS = [
-    'buoy.apps.BuoyConfig',
+    'device.apps.DeviceConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
@@ -77,7 +78,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -94,12 +95,19 @@ TEMPLATES = [
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# GOOGLE_API_KEY = 'AIzaSyABG3cnsrqJjy7S-lgwhkoPZCKvMdGQcC4'
 
 if DEBUG:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME':  os.path.join(BASE_DIR, "db.sqlite3"),
+            # 'ENGINE': 'django.db.backends.sqlite3',
+            # 'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME':  'local_gis_db',
+            'USER': 'doc2kim',
+            'PASSWORD': 'Dkxltmxm22!',
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
 else:
@@ -118,6 +126,7 @@ else:
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -142,7 +151,7 @@ CORS_ALLOW_CREDENTIALS = True
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'Asia/Seoul'
 
@@ -150,15 +159,20 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
+# GDAL_LIBRARY_PATH = '/opt/homebrew/Cellar/gdal/3.5.2_1/lib/libgdal.dylib'
+# GEOS_LIBRARY_PATH = '/opt/homebrew/opt/geos/lib/libgeos_c.dylib'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfile")
-
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
+
 WSGI_APPLICATION = 'config.wsgi.application'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -167,14 +181,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'PAGE_SIZE': 10
 }
 
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'ODN REST API Document',
-    'DESCRIPTION': " 안녕하세요 이곳은 ODN REST API 문서 페이지 입니다 :)<br/><br/><a href='http://api.odn-it.com/buoy/'>스마트부표 REST API 바로가기 😚</a>",
+    'DESCRIPTION': " 안녕하세요 이곳은 ODN REST API 문서 페이지 입니다 :)<br/><br/><a href='http://api.odn-it.com/devices/'>스마트부표 REST API 바로가기 😚</a>",
     'CONTACT': {'name': 'doc2kim', 'email': 'doc2kim@naver.com'},
     'SWAGGER_UI_SETTINGS': {
         'dom_id': '#swagger-ui',  # required(default)
