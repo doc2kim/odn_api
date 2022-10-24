@@ -8,6 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         admin = User.objects.filter(username="admin")
+        print('admin = ', admin)
         if not admin:
             User.objects.create_superuser(
                 "admin", "admin@admin.com", "admin01323!")

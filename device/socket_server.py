@@ -104,7 +104,7 @@ def binder(client_socket, addr):
                     '!f', bytes.fromhex(msg[114:122]))[0]
 
                 chlorophyll = int(msg[122:126], 16) / \
-                    (1000 ** int(msg[126:130], 16))
+                    (10 ** int(msg[126:130], 16))
                 chlorophyll_temp = int(msg[130:134], 16) / \
                     (10 ** int(msg[134:138], 16))
 

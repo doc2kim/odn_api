@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f6aabaae50e997b384aa1c4fbd8800e9661ab926855131dc50f4257d8ee5c88a"
+            "sha256": "5745309c534388e11c7c41166135f2e067f608c098fc22a43fad4a8d48e45f19"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -56,13 +56,6 @@
             "index": "pypi",
             "version": "==4.1.2"
         },
-        "django-address": {
-            "hashes": [
-                "sha256:aa0c5b90524d4dee43162929cceb1c546f859c4a16a3fc0497a4896b7ace4236"
-            ],
-            "index": "pypi",
-            "version": "==0.2.8"
-        },
         "django-cors-headers": {
             "hashes": [
                 "sha256:37e42883b5f1f2295df6b4bba96eb2417a14a03270cb24b2a07f021cd4487cf4",
@@ -70,14 +63,6 @@
             ],
             "index": "pypi",
             "version": "==3.13.0"
-        },
-        "django-filter": {
-            "hashes": [
-                "sha256:ed429e34760127e3520a67f415bec4c905d4649fbe45d0d6da37e6ff5e0287eb",
-                "sha256:ed473b76e84f7e83b2511bb2050c3efb36d135207d0128dfe3ae4b36e3594ba5"
-            ],
-            "index": "pypi",
-            "version": "==22.1"
         },
         "djangorestframework": {
             "hashes": [
@@ -141,6 +126,14 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==4.16.0"
+        },
+        "postgis": {
+            "hashes": [
+                "sha256:1dfa62d33c585d68a54bdd47c21bdcb9302f9cbb0ef5aec360e64d2c3e0e1a93",
+                "sha256:3d41f087e249a2a8b6720931e6f8f22b7747801f250265a8b8ac5f9d48221e63"
+            ],
+            "index": "pypi",
+            "version": "==1.0.4"
         },
         "psycopg2-binary": {
             "hashes": [

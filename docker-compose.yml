@@ -1,0 +1,60 @@
+version: "3.9" # django-code:
+
+services:
+
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   ports: nginx - "80:80"
+  #   volumes:
+  #     - ./static:/code/static
+  #     - ./config/nginx/:/etc/nginx/conf.d
+  #   depends_on:
+  #     - django
+  db:
+    image: postgis/postgis
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: local_gis_db
+      POSTGRES_USER: doc2kim
+      POSTGRES_PASSWORD: doc2password!
+      POSTGRES_HOST: doc2db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    networks:
+      - backend
+
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DOCKER_DEFAULT_PLATFORM=linux/amd64
+      - DJANGO_SETTINGS_MODULE=config.settings
+    volumes:
+      - django-code:/odn_api
+    entrypoint: ./wait-for-it.sh db:5432 --
+
+    command:
+      - sh
+      - -c
+      - |
+        python manage.py migrate --no-input
+        python manage.py createsu
+        python manage.py runserver 0.0.0.0:8000
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  django-code:

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
+import platform
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -96,6 +97,12 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 # GOOGLE_API_KEY = 'AIzaSyABG3cnsrqJjy7S-lgwhkoPZCKvMdGQcC4'
+db_host = ""
+# Linux means running inside Ubuntu in docker in my case.
+if platform.system() == "Linux":
+    db_host = "db"  # or use .env file
+else:
+    db_host = "localhost"
 
 if DEBUG:
     DATABASES = {
@@ -105,8 +112,8 @@ if DEBUG:
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME':  'local_gis_db',
             'USER': 'doc2kim',
-            'PASSWORD': 'Dkxltmxm22!',
-            'HOST': 'localhost',
+            'PASSWORD': 'doc2password!',
+            'HOST': 'db',
             'PORT': '5432',
         }
     }
