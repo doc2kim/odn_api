@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
-import platform
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,8 +26,8 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = False
-DEBUG = True
+DEBUG = False
+# DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -97,18 +96,11 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 # GOOGLE_API_KEY = 'AIzaSyABG3cnsrqJjy7S-lgwhkoPZCKvMdGQcC4'
-db_host = ""
-# Linux means running inside Ubuntu in docker in my case.
-if platform.system() == "Linux":
-    db_host = "db"  # or use .env file
-else:
-    db_host = "localhost"
 
-if DEBUG:
+
+if not DEBUG:
     DATABASES = {
         'default': {
-            # 'ENGINE': 'django.db.backends.sqlite3',
-            # 'ENGINE': 'django.contrib.gis.db.backends.spatialite',
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME':  'local_gis_db',
             'USER': 'doc2kim',
@@ -117,18 +109,18 @@ if DEBUG:
             'PORT': '5432',
         }
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "HOST": os.environ.get("RDS_HOST"),
-            "NAME": os.environ.get("RDS_NAME"),
-            "USER": os.environ.get("RDS_USER"),
-            "PASSWORD": os.environ.get("RDS_PASSWORD"),
-            "PORT": os.environ.get("RDS_PORT"),
-        }
+# else:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": 'django.contrib.gis.db.backends.postgis',
+#             "HOST": os.environ.get("RDS_HOST"),
+#             "NAME": os.environ.get("RDS_NAME"),
+#             "USER": os.environ.get("RDS_USER"),
+#             "PASSWORD": os.environ.get("RDS_PASSWORD"),
+#             "PORT": os.environ.get("RDS_PORT"),
+#         }
 
-    }
+#     }
 
 
 # Password validation
@@ -174,11 +166,12 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfile")
+
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
-)
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "device", "static"), ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
 # Default primary key field type

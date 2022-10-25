@@ -1,21 +1,50 @@
-version: "3.9" # django-code:
+version: "3.9"
 
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./staticfiles:/static
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - django
+    networks:
+      - frontend
 
-  # nginx:
-  #   image: nginx:latest
-  #   container_name: nginx
-  #   ports: nginx - "80:80"
-  #   volumes:
-  #     - ./static:/code/static
-  #     - ./config/nginx/:/etc/nginx/conf.d
-  #   depends_on:
-  #     - django
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DOCKER_DEFAULT_PLATFORM=linux/amd64
+      - DJANGO_SETTINGS_MODULE=config.settings
+    volumes:
+      - django-code:/odn_api
+    # entrypoint: ./wait-for-it.sh db:5432 --
+    command:
+      - sh
+      - -c
+      - |
+        python manage.py migrate --no-input
+        python manage.py collectstatic --no-input
+        python manage.py createsu
+        gunicorn --bind 0.0.0.0:8000 config.wsgi:application
+    networks:
+      - frontend
+      - backend
+
   db:
     image: postgis/postgis
     volumes:
       - postgres-data:/var/lib/postgresql/data/
-    ports:
+    expose:
       - "5432:5432"
     environment:
       POSTGRES_DB: local_gis_db
@@ -26,32 +55,9 @@ services:
     networks:
       - backend
 
-  django:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      - DOCKER_DEFAULT_PLATFORM=linux/amd64
-      - DJANGO_SETTINGS_MODULE=config.settings
-    volumes:
-      - django-code:/odn_api
-    entrypoint: ./wait-for-it.sh db:5432 --
-
-    command:
-      - sh
-      - -c
-      - |
-        python manage.py migrate --no-input
-        python manage.py createsu
-        python manage.py runserver 0.0.0.0:8000
-    networks:
-      - backend
-
 networks:
+  frontend:
+    driver: bridge
   backend:
     driver: bridge
 

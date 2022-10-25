@@ -69,7 +69,6 @@ class DeviceMapView(TemplateView):
 # def devices(request):
 #     queryset = Device.objects.all()
 #     serializer = DeviceSerializer(queryset, many=True)
-
 #     return Response(serializer.data)
 
 
