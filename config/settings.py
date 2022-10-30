@@ -98,29 +98,29 @@ TEMPLATES = [
 # GOOGLE_API_KEY = 'AIzaSyABG3cnsrqJjy7S-lgwhkoPZCKvMdGQcC4'
 
 
-if not DEBUG:
+if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME':  'local_gis_db',
-            'USER': 'doc2kim',
-            'PASSWORD': 'doc2password!',
-            'HOST': 'db',
-            'PORT': '5432',
+            "HOST": os.environ.get("HOST"),
+            "NAME": os.environ.get("NAME"),
+            "USER": os.environ.get("USER"),
+            "PASSWORD": os.environ.get("PASSWORD"),
+            "PORT": os.environ.get("PORT"),
         }
     }
-# else:
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": 'django.contrib.gis.db.backends.postgis',
-#             "HOST": os.environ.get("RDS_HOST"),
-#             "NAME": os.environ.get("RDS_NAME"),
-#             "USER": os.environ.get("RDS_USER"),
-#             "PASSWORD": os.environ.get("RDS_PASSWORD"),
-#             "PORT": os.environ.get("RDS_PORT"),
-#         }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": 'django.contrib.gis.db.backends.postgis',
+            "HOST": os.environ.get("RDS_HOST"),
+            "NAME": os.environ.get("RDS_NAME"),
+            "USER": os.environ.get("RDS_USER"),
+            "PASSWORD": os.environ.get("RDS_PASSWORD"),
+            "PORT": os.environ.get("RDS_PORT"),
+        }
 
-#     }
+    }
 
 
 # Password validation
@@ -169,7 +169,7 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "device", "static"), ]
 

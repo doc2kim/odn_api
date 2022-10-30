@@ -6,8 +6,9 @@ VERSION
 README.md
 Changelog.md
 Makefile
-docker-compose.yml
+
 docs
-test
-test2
-wait-for-it.sh
+test.py
+test2.py
+ecs-cli.txt
+secrets.json

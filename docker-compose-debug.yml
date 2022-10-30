@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  django:
+    platform: linux/amd64
+    build:
+      context: ./
+      dockerfile: Dockerfile
+
+    container_name: django-container
+
+    entrypoint:
+      - /docker-entrypoint.sh
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      - DEBUG: True
+    volumes:
+      - ./static: /static
+    depends_on:
+      - db
+    networks:
+      - front
+      - back
+
+  nginx:
+    platform: linux/amd64
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile
+
+    container_name: nginx-container
+
+    links:
+      - django
+    ports:
+      - "80"
+    entrypoint:
+      - /docker-entrypoint.sh
+    depends_on:
+      - django
+    networks:
+      - back
+
+  db:
+    image: postgis/postgis
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    expose:
+      - "5432:5432"
+    environment:
+      HOST: doc2db
+      NAME: local_gis_db
+      USER: doc2kim
+      PASSWORD: doc2password!
+      PORT: doc2db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    networks:
+      - back
+
+networks:
+  back:
+    driver: bridge
+  front:
+    driver: bridge
+volumes:
+  postgres-data:

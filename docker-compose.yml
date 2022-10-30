@@ -1,66 +1,43 @@
 version: "3.9"
 
 services:
+  django:
+    platform: linux/amd64
+    build:
+      context: ./
+      dockerfile: Dockerfile
+
+    image: 030305457537.dkr.ecr.ap-northeast-2.amazonaws.com/odnapi/django
+
+    expose:
+      - "8000"
+    entrypoint:
+      - /docker-entrypoint.sh
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+
+    networks:
+      - app
+
   nginx:
-    image: nginx:latest
-    container_name: nginx
+    platform: linux/amd64
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile
+
+    image: 030305457537.dkr.ecr.ap-northeast-2.amazonaws.com/odnapi/nginx
+
     ports:
-      - "80:80"
-    volumes:
-      - ./staticfiles:/static
-      - ./nginx:/etc/nginx/conf.d
+      - "80"
+    entrypoint:
+      - /docker-entrypoint.sh
+
     depends_on:
       - django
     networks:
-      - frontend
-
-  django:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    expose:
-      - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      - DOCKER_DEFAULT_PLATFORM=linux/amd64
-      - DJANGO_SETTINGS_MODULE=config.settings
-    volumes:
-      - django-code:/odn_api
-    # entrypoint: ./wait-for-it.sh db:5432 --
-    command:
-      - sh
-      - -c
-      - |
-        python manage.py migrate --no-input
-        python manage.py collectstatic --no-input
-        python manage.py createsu
-        gunicorn --bind 0.0.0.0:8000 config.wsgi:application
-    networks:
-      - frontend
-      - backend
-
-  db:
-    image: postgis/postgis
-    volumes:
-      - postgres-data:/var/lib/postgresql/data/
-    expose:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: local_gis_db
-      POSTGRES_USER: doc2kim
-      POSTGRES_PASSWORD: doc2password!
-      POSTGRES_HOST: doc2db
-      POSTGRES_HOST_AUTH_METHOD: trust
-    networks:
-      - backend
+      - app
 
 networks:
-  frontend:
-    driver: bridge
-  backend:
-    driver: bridge
+  app:
 
-volumes:
-  postgres-data:
-  django-code:
+
